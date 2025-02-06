@@ -62,9 +62,15 @@ const createWindow = () => {
                                 const response = {
                                     ...acc,
                                 }
-                                Object.keys(curr).forEach(key => {
-                                    response[key + (index + 1)] = curr[key];
-                                });
+                                Object
+                                    .keys(curr)
+                                    .forEach(key => {
+                                        let header = key + (index + 1);
+                                        if (['photo', 'qrcode'].includes(key)) {
+                                            header = '@' + header;
+                                        }
+                                        response[header] = curr[key];
+                                    });
                                 return response;
                             }, {}));
                         }
