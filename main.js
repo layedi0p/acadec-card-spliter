@@ -69,14 +69,16 @@ const createWindow = () => {
                                         if (['photo', 'qrcode'].includes(key)) {
                                             header = '@' + header;
                                         }
-                                        response[header] = curr[key];
+                                        response[header] = "'" + curr[key];
                                     });
                                 return response;
                             }, {}));
                         }
                         const book = xlsx.utils.book_new();
                         xlsx.utils.book_append_sheet(book, xlsx.utils.json_to_sheet(treattedData), 'Sheet1');
-                        xlsx.writeFile(book, path.join(downloadDir, 'output.xlsx'));
+                        //write xlsx to csv
+                        const csv = xlsx.utils.sheet_to_csv(book.Sheets[book.SheetNames[0]]);
+                        fs.writeFileSync(path.join(downloadDir, 'output.csv'), csv, 'utf-8');
                         process.exit(0);
                     }
                 }).catch(err => {
