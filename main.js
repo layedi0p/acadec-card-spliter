@@ -3,7 +3,7 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
-
+const converter = require('json-2-csv');
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -21,6 +21,7 @@ const createWindow = () => {
             const filePath = result.filePaths[0];
             try {
                 const jsonData = excelToJson(filePath);
+                console.log(jsonData);
                 //select save dir
                 dialog.showOpenDialog(win, {
                     properties: ['openDirectory', 'createDirectory']
@@ -69,15 +70,21 @@ const createWindow = () => {
                                         if (['photo', 'qrcode'].includes(key)) {
                                             header = '@' + header;
                                         }
-                                        response[header] = "'" + curr[key];
+                                        response[header] = curr[key];
                                     });
                                 return response;
                             }, {}));
                         }
-                        const book = xlsx.utils.book_new();
-                        xlsx.utils.book_append_sheet(book, xlsx.utils.json_to_sheet(treattedData), 'Sheet1');
+                        //const book = xlsx.utils.book_new();
+                        //xlsx.utils.book_append_sheet(book, xlsx.utils.json_to_sheet(treattedData), 'Sheet1');
                         //write xlsx to csv
-                        const csv = xlsx.utils.sheet_to_csv(book.Sheets[book.SheetNames[0]]);
+                        //const csv = xlsx.utils.sheet_to_csv(book.Sheets[book.SheetNames[0]]);
+                        const csv = converter.json2csv(treattedData, {
+                            emptyFieldValue: '',
+                            unwindArrays: true,
+                            unwindArraysSeparator: ',',
+                            flatten: true
+                        });
                         fs.writeFileSync(path.join(downloadDir, 'output.csv'), csv, 'utf-8');
                         process.exit(0);
                     }
@@ -125,7 +132,7 @@ function excelToJson(filePath) {
     const firstSheetName = workbook.SheetNames[0];
 
     // Convertir la feuille en JSON
-    const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[firstSheetName]);
+    const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[firstSheetName], { raw: false });
 
     return jsonData;
 }
@@ -139,6 +146,7 @@ function excelToJson(filePath) {
  * @returns {Promise<string>} - Chemin du fichier téléchargé.
  */
 function downloadFile(fileUrl, downloadDir, fileName) {
+    console.log('downloading file', fileUrl);
     return new Promise((resolve, reject) => {
         // Vérifier si le répertoire existe, sinon le créer
         if (!fs.existsSync(downloadDir)) {

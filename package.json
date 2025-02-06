@@ -13,6 +13,7 @@
     "electron": "^34.0.2"
   },
   "dependencies": {
+    "json-2-csv": "^5.5.8",
     "xlsx": "^0.18.5"
   }
 }
