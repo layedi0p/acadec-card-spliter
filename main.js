@@ -69,6 +69,17 @@ const createWindow = () => {
                                         let header = key + (index + 1);
                                         if (['photo', 'qrcode'].includes(key)) {
                                             header = '@' + header;
+                                        } else if (key === 'nomComplet') {
+                                            let name = curr[key];
+                                            if(name.length >= 18 ) {
+                                                const names = name.split(' ');
+                                                name = names[0];
+                                                for(let i = 1; i < names.length - 1; i++) {
+                                                   name += ' ' + names[i].charAt(0) + '.';
+                                                }
+                                                name += ' ' + names[names.length - 1];
+                                            }
+                                            curr[key] = name;
                                         }
                                         response[header] = curr[key];
                                     });
