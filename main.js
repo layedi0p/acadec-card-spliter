@@ -59,6 +59,10 @@ const createWindow = () => {
                         const treattedData = [];
                         const chunkedData = chunkArray(jsonData, 10);
                         for (const data of chunkedData) {
+                            if(data.length < 10) {
+                                const lastEl = data[data.length - 1];
+                                data.push(...new Array(10 - data.length).fill(null).map(_ => ({...lastEl})))
+                            }
                             treattedData.push(data.reduce((acc, curr, index) => {
                                 const response = {
                                     ...acc,
@@ -156,7 +160,11 @@ function excelToJson(filePath) {
  * @param {string} fileName - Nom sous lequel enregistrer le fichier.
  * @returns {Promise<string>} - Chemin du fichier téléchargé.
  */
-function downloadFile(fileUrl, downloadDir, fileName) {
+function downloadFile(fileUrl, downloadDir, fileName, force = false) {
+    if(fs.existsSync(path.join(downloadDir, fileName)) && !force) {
+        console.log(fileName, 'already downloaded');
+        return Promise.resolve(true)
+    }
     console.log('downloading file', fileUrl);
     return new Promise((resolve, reject) => {
         // Vérifier si le répertoire existe, sinon le créer
